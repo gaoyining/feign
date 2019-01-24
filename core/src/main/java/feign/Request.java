@@ -223,6 +223,8 @@ public final class Request {
   /*
    * Controls the per-request settings currently required to be implemented by all {@link Client
    * clients}
+   *
+   * 控制所有{@link客户端客户端}当前需要实施的每请求设置
    */
   public static class Options {
 

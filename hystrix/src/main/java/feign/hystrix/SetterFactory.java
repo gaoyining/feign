@@ -24,6 +24,8 @@ import feign.Target;
  * Used to control properties of a hystrix command. Use cases include reading from static
  * configuration or custom annotations.
  *
+ * 用于控制hystrix命令的属性。 用例包括从静态配置或自定义注释中读取。
+ *
  * <p>
  * This is parsed up-front, like {@link feign.Contract}, so will not be invoked for each command
  * invocation.

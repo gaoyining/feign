@@ -44,11 +44,15 @@ public class ReflectiveFeign extends Feign {
 
   /**
    * creates an api binding to the {@code target}. As this invokes reflection, care should be taken
+   *
    * to cache the result.
+   * 创建与{@code target}绑定的api。 由于这会调用反射，因此应注意缓存结果。
    */
   @SuppressWarnings("unchecked")
   @Override
   public <T> T newInstance(Target<T> target) {
+    // ----------- 关键方法 -----------------
+    // 根据target获得MethodHandler
     Map<String, MethodHandler> nameToHandler = targetToHandlersByName.apply(target);
     Map<Method, MethodHandler> methodToHandler = new LinkedHashMap<Method, MethodHandler>();
     List<DefaultMethodHandler> defaultMethodHandlers = new LinkedList<DefaultMethodHandler>();
@@ -65,6 +69,7 @@ public class ReflectiveFeign extends Feign {
       }
     }
     InvocationHandler handler = factory.create(target, methodToHandler);
+    // 生成代理类
     T proxy = (T) Proxy.newProxyInstance(target.type().getClassLoader(),
         new Class<?>[] {target.type()}, handler);
 
@@ -100,6 +105,8 @@ public class ReflectiveFeign extends Feign {
         return toString();
       }
 
+      // ----------------- 关键方法 --------------------
+      // 获得MethodHandler，调用MethodHandler的invoke方法
       return dispatch.get(method).invoke(args);
     }
 
@@ -151,13 +158,16 @@ public class ReflectiveFeign extends Feign {
     }
 
     public Map<String, MethodHandler> apply(Target key) {
+      // 根据不同的实现，获得有@Feign的方法，参数等等
       List<MethodMetadata> metadata = contract.parseAndValidatateMetadata(key.type());
       Map<String, MethodHandler> result = new LinkedHashMap<String, MethodHandler>();
       for (MethodMetadata md : metadata) {
         BuildTemplateByResolvingArgs buildTemplate;
         if (!md.formParams().isEmpty() && md.template().bodyTemplate() == null) {
+            // 表单参数不为空 && 要解析的Body模板 == null
           buildTemplate = new BuildFormEncodedTemplateFromArgs(md, encoder, queryMapEncoder);
         } else if (md.bodyIndex() != null) {
+            // bodyIndex 不为空
           buildTemplate = new BuildEncodedTemplateFromArgs(md, encoder, queryMapEncoder);
         } else {
           buildTemplate = new BuildTemplateByResolvingArgs(md, queryMapEncoder);
@@ -201,17 +211,25 @@ public class ReflectiveFeign extends Feign {
 
     @Override
     public RequestTemplate create(Object[] argv) {
+      // ------------ 关键方法 --------------
+      // 从现有的请求模板创建请求模板。
       RequestTemplate mutable = RequestTemplate.from(metadata.template());
+      // 设置uri
       if (metadata.urlIndex() != null) {
         int urlIndex = metadata.urlIndex();
         checkArgument(argv[urlIndex] != null, "URI parameter %s was null", urlIndex);
         mutable.target(String.valueOf(argv[urlIndex]));
       }
       Map<String, Object> varBuilder = new LinkedHashMap<String, Object>();
+      // 遍历MethodMetadata中所有关于参数的索引及其对应的名称的配置信息
       for (Entry<Integer, Collection<String>> entry : metadata.indexToName().entrySet()) {
         int i = entry.getKey();
+        // entry.getKey就是参数的索引
         Object value = argv[entry.getKey()];
-        if (value != null) { // Null values are skipped.
+        if (value != null) {
+          // Null values are skipped.
+          //跳过空值。
+          // indexToExpander保存着将各种类型参数的值转换为string类型的Expander转换器
           if (indexToExpander.containsKey(i)) {
             value = expandElements(indexToExpander.get(i), value);
           }
@@ -221,15 +239,21 @@ public class ReflectiveFeign extends Feign {
         }
       }
 
+      // ------------- 关键方法 ---------------
+      // 首先会替换URI中的pathValues,然后对URI进行编码，接着讲所有的头部信息进行转化，最后处理请求的Body数据
       RequestTemplate template = resolve(argv, mutable, varBuilder);
+      // 设置queryMap参数
       if (metadata.queryMapIndex() != null) {
         // add query map parameters after initial resolve so that they take
         // precedence over any predefined values
+        // 在初始解析后添加查询映射参数，以便它们采用
+        // 优先于任何预定义的值
         Object value = argv[metadata.queryMapIndex()];
         Map<String, Object> queryMap = toQueryMap(value);
         template = addQueryMapQueryParameters(queryMap, template);
       }
 
+      // 设置headersMap参数
       if (metadata.headerMapIndex() != null) {
         template =
             addHeaderMapHeaders((Map<String, Object>) argv[metadata.headerMapIndex()], template);

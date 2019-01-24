@@ -53,6 +53,9 @@ final class DefaultMethodHandler implements MethodHandler {
    * Bind this handler to a proxy object. After bound, DefaultMethodHandler#invoke will act as if it
    * was called on the proxy object. Must be called once and only once for a given instance of
    * DefaultMethodHandler
+   *
+   * 将此处理程序绑定到代理对象。 绑定后，DefaultMethodHandler #envoke将像在代理对象上调用一样。
+   * 对于给定的DefaultMethodHandler实例，必须只调用一次
    */
   public void bindTo(Object proxy) {
     if (handle != null) {

@@ -34,6 +34,11 @@ import static feign.Util.*;
  * This class is a variation on a UriTemplate, where, in addition to the uri, Headers and Query
  * information also support template expressions.
  * </p>
+ *
+ * 请求HTTP目标的构建器。
+ *  <P>
+ *    此类是UriTemplate的变体，除了uri之外，Headers和Query信息还支持模板表达式。
+ *  </ p>
  */
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 public final class RequestTemplate implements Serializable {
@@ -88,6 +93,8 @@ public final class RequestTemplate implements Serializable {
   /**
    * Create a Request Template from an existing Request Template.
    *
+   * 从现有的请求模板创建请求模板。
+   *
    * @param requestTemplate to copy from.
    * @return a new Request Template.
    */
@@ -97,10 +104,12 @@ public final class RequestTemplate implements Serializable {
             requestTemplate.method, requestTemplate.charset,
             requestTemplate.body, requestTemplate.decodeSlash, requestTemplate.collectionFormat);
 
+    // 所有的查询
     if (!requestTemplate.queries().isEmpty()) {
       template.queries.putAll(requestTemplate.queries);
     }
 
+    // 所有的请求头
     if (!requestTemplate.headers().isEmpty()) {
       template.headers.putAll(requestTemplate.headers);
     }
@@ -132,6 +141,8 @@ public final class RequestTemplate implements Serializable {
   /**
    * Resolve all expressions using the variable value substitutions provided. Variable values will
    * be pct-encoded, if they are not already.
+   *
+   * 使用提供的变量值替换解析所有表达式。 变量值将进行pct编码（如果尚未编码）。
    *
    * @param variables containing the variable values to use when resolving expressions.
    * @return a new Request Template with all of the variables resolved.
@@ -772,6 +783,7 @@ public final class RequestTemplate implements Serializable {
 
   /**
    * Body Template to resolve.
+   * 要解析的Body模板。
    *
    * @return the unresolved body template.
    */

@@ -25,6 +25,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * specified by the map will be applied to the request after all other processing, and will take
  * precedence over any previously specified query parameters. It is not necessary to reference the
  * parameter map as a variable. <br>
+ *
+ *     可应用于包含查询参数的Map的模板参数，其中键是作为参数名称的字符串，值是参数值。
+ *     map指定的查询将在所有其他处理后应用于请求，并优先于任何先前指定的查询参数。 没有必要将参数图引用为变量。点击
  * <br>
  * 
  * <pre>

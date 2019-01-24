@@ -39,6 +39,8 @@ public @interface Param {
    * Specifies whether argument is already encoded The value is ignored for headers (headers are
    * never encoded)
    *
+   * 指定参数是否已编码为标头忽略该值（标头永远不会编码）
+   *
    * @see QueryMap#encoded
    */
   boolean encoded() default false;
@@ -47,6 +49,8 @@ public @interface Param {
 
     /**
      * Expands the value into a string. Does not accept or return null.
+     *
+     * 将值扩展为字符串。 不接受或返回null。
      */
     String expand(Object value);
   }

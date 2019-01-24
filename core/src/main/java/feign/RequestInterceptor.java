@@ -18,6 +18,11 @@ package feign;
  * all requests. No guarantees are give with regards to the order that interceptors are applied.
  * Once interceptors are applied, {@link Target#apply(RequestTemplate)} is called to create the
  * immutable http request sent via {@link Client#execute(Request, feign.Request.Options)}. <br>
+ *
+ *
+ *  可以配置零个或多个{@code RequestInterceptors}，以便为所有请求添加标头。 关于拦截器的使用顺序，我们不予保证。
+ *   一旦应用了拦截器，就会调用{@link Target＃apply（RequestTemplate）}来创建
+ *   通过{@link Client＃execute（Request，feign.Request.Options）}发送的不可变http请求。点击
  * <br>
  * For example: <br>
  * 

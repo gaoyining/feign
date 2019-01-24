@@ -71,10 +71,14 @@ final class SynchronousMethodHandler implements MethodHandler {
 
   @Override
   public Object invoke(Object[] argv) throws Throwable {
+    // ------------- 关键方法 -----------------
+    // 创建RequestTemplate对象
     RequestTemplate template = buildTemplateFromArgs.create(argv);
     Retryer retryer = this.retryer.clone();
     while (true) {
       try {
+        // -----------  关键方法 ------------
+        // 执行和解码
         return executeAndDecode(template);
       } catch (RetryableException e) {
         try {
@@ -96,6 +100,7 @@ final class SynchronousMethodHandler implements MethodHandler {
   }
 
   Object executeAndDecode(RequestTemplate template) throws Throwable {
+    // 根据RequestTemplate生产request
     Request request = targetRequest(template);
 
     if (logLevel != Logger.Level.NONE) {
@@ -120,6 +125,7 @@ final class SynchronousMethodHandler implements MethodHandler {
         response =
             logger.logAndRebufferResponse(metadata.configKey(), logLevel, response, elapsedTime);
       }
+      // 如果response的类型就是函数返回的类型，那么可以直接返回
       if (Response.class == metadata.returnType()) {
         if (response.body() == null) {
           return response;
@@ -130,6 +136,7 @@ final class SynchronousMethodHandler implements MethodHandler {
           return response;
         }
         // Ensure the response body is disconnected
+        // 确保响应主体已断开连接
         byte[] bodyData = Util.toByteArray(response.body().asInputStream());
         return response.toBuilder().body(bodyData).build();
       }
@@ -165,6 +172,7 @@ final class SynchronousMethodHandler implements MethodHandler {
   }
 
   Request targetRequest(RequestTemplate template) {
+    // 使用请求拦截器为每个请求添加固定的header信息。
     for (RequestInterceptor interceptor : requestInterceptors) {
       interceptor.apply(template);
     }

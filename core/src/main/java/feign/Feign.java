@@ -31,6 +31,9 @@ import static feign.ExceptionPropagationPolicy.NONE;
  * Feign's purpose is to ease development against http apis that feign restfulness. <br>
  * In implementation, Feign is a {@link Feign#newInstance factory} for generating {@link Target
  * targeted} http apis.
+ *
+ * Feign的目的是为了避免开发反对假装安宁的http apis。点击
+ * 在实施过程中，Feign是{@link Feign＃newInstance factory}，用于生成{@link Target targeted} http apis。
  */
 public abstract class Feign {
 
@@ -59,6 +62,8 @@ public abstract class Feign {
    * </pre>
    *
    * Note that there is no whitespace expected in a key!
+   *
+   * Feign.configKey() 将方法的名，参数等append
    *
    * @param targetType {@link feign.Target#type() type} of the Feign interface.
    * @param method invoked method, present on {@code type} or its super.

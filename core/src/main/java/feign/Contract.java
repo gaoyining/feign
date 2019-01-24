@@ -32,11 +32,15 @@ import java.util.regex.Pattern;
 
 /**
  * Defines what annotations and values are valid on interfaces.
+ *
+ * 定义注释和值在接口上的协议。
  */
 public interface Contract {
 
   /**
    * Called to parse the methods in the class that are linked to HTTP requests.
+   *
+   * 调用解析类中与HTTP请求链接的方法。
    *
    * @param targetType {@link feign.Target#type() type} of the Feign interface.
    */
@@ -63,6 +67,8 @@ public interface Contract {
             Util.isDefault(method)) {
           continue;
         }
+        // --------------关键方法------------
+        // 解析和验证元数据
         MethodMetadata metadata = parseAndValidateMetadata(targetType, method);
         checkState(!result.containsKey(metadata.configKey()), "Overrides unsupported: %s",
             metadata.configKey());
@@ -84,37 +90,52 @@ public interface Contract {
      */
     protected MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
       MethodMetadata data = new MethodMetadata();
+      // 返回的返回值
       data.returnType(Types.resolve(targetType, targetType, method.getGenericReturnType()));
+      // 函数feign相关的唯一配置键
       data.configKey(Feign.configKey(targetType, method));
 
+      // 获取并处理修饰class的注解信息
       if (targetType.getInterfaces().length == 1) {
+        // 如果类只有一个接口
+        // -----------关键方法------------
         processAnnotationOnClass(data, targetType.getInterfaces()[0]);
       }
+      // -----------关键方法------------
       processAnnotationOnClass(data, targetType);
 
 
+      // 处理修饰method的注解信息
       for (Annotation methodAnnotation : method.getAnnotations()) {
+        // -----------关键方法------------
+        // 处理方法上的注解
         processAnnotationOnMethod(data, methodAnnotation, method);
       }
       checkState(data.template().method() != null,
           "Method %s not annotated with HTTP method type (ex. GET, POST)",
           method.getName());
+      // 函数参数类型
       Class<?>[] parameterTypes = method.getParameterTypes();
       Type[] genericParameterTypes = method.getGenericParameterTypes();
 
+      // 函数参数的注解类型
       Annotation[][] parameterAnnotations = method.getParameterAnnotations();
       int count = parameterAnnotations.length;
+      // 依次处理各个函数参数注解
       for (int i = 0; i < count; i++) {
         boolean isHttpAnnotation = false;
         if (parameterAnnotations[i] != null) {
+          // 处理参数的注解，并且返回该参数来指明是否为将要发送请求的body。除了body之外，还可能是path，param等。
           isHttpAnnotation = processAnnotationsOnParameter(data, parameterAnnotations[i], i);
         }
         if (parameterTypes[i] == URI.class) {
           data.urlIndex(i);
         } else if (!isHttpAnnotation) {
           checkState(data.formParams().isEmpty(),
+              // Body参数不能与表单参数一起使用。
               "Body parameters cannot be used with form parameters.");
           checkState(data.bodyIndex() == null, "Method has too many Body parameters: %s", method);
+          // 表明发送请求body的参数位置和参数类型
           data.bodyIndex(i);
           data.bodyType(Types.resolve(targetType, targetType, genericParameterTypes[i]));
         }
@@ -173,6 +194,8 @@ public interface Contract {
     /**
      * Called by parseAndValidateMetadata twice, first on the declaring class, then on the target
      * type (unless they are the same).
+     *
+     * 由parseAndValidateMetadata调用两次，首先在声明类，然后在目标类型上（除非它们是相同的）。
      *
      * @param data metadata collected so far relating to the current java method.
      * @param clz the class to process

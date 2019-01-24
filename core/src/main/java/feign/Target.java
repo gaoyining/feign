@@ -41,6 +41,8 @@ public interface Target<T> {
   /**
    * Targets a template to this target, adding the {@link #url() base url} and any target-specific
    * headers or query parameters. <br>
+   *
+   *     将模板定位到此目标，添加{@link #url（）基本URL以及任何特定于目标的标头或查询参数。
    * <br>
    * For example: <br>
    * 

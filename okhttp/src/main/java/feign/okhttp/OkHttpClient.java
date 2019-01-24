@@ -47,15 +47,18 @@ public final class OkHttpClient implements Client {
 
   static Request toOkHttpRequest(feign.Request input) {
     Request.Builder requestBuilder = new Request.Builder();
+    // 设置url
     requestBuilder.url(input.url());
 
     MediaType mediaType = null;
     boolean hasAcceptHeader = false;
+    // header中如果有Accept，设置hasAcceptHeader = true
     for (String field : input.headers().keySet()) {
       if (field.equalsIgnoreCase("Accept")) {
         hasAcceptHeader = true;
       }
 
+      // 添加header头信息，解析Content-Type
       for (String value : input.headers().get(field)) {
         requestBuilder.addHeader(field, value);
         if (field.equalsIgnoreCase("Content-Type")) {
@@ -67,6 +70,7 @@ public final class OkHttpClient implements Client {
       }
     }
     // Some servers choke on the default accept string.
+    // 某些服务器阻塞了默认的接受字符串。
     if (!hasAcceptHeader) {
       requestBuilder.addHeader("Accept", "*/*");
     }
@@ -76,6 +80,7 @@ public final class OkHttpClient implements Client {
         HttpMethod.POST == input.httpMethod() || HttpMethod.PUT == input.httpMethod()
             || HttpMethod.PATCH == input.httpMethod();
     if (isMethodWithBody) {
+      // 如果HttpMethod为 POST || PUT || PATCH，则移除Content-Type
       requestBuilder.removeHeader("Content-Type");
       if (inputBody == null) {
         // write an empty BODY to conform with okhttp 2.4.0+
@@ -163,8 +168,14 @@ public final class OkHttpClient implements Client {
     } else {
       requestScoped = delegate;
     }
+    // -------------- 关键方法 ---------------
+    // 将feign.Request 转换为okhttp的Request对象
     Request request = toOkHttpRequest(input);
+    // -------------- 关键方法 ---------------
+    // 使用okhttp的同步操作发送网络请求
     Response response = requestScoped.newCall(request).execute();
+    // -------------- 关键方法 ---------------
+    // 将okhttp的Response转换为feign.Response
     return toFeignResponse(response, input).toBuilder().request(input).build();
   }
 }

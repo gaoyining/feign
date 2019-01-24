@@ -151,6 +151,8 @@ public final class MethodMetadata implements Serializable {
   /**
    * After {@link #indexToExpanderClass} is populated, this is set by contracts that support runtime
    * injection.
+   *
+   * 在填充{@link #indexToExpanderClass}之后，这由支持运行时注入的合同设置。
    */
   public MethodMetadata indexToExpander(Map<Integer, Expander> indexToExpander) {
     this.indexToExpander = indexToExpander;
